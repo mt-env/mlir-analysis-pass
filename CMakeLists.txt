@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.20)
 # with check_c_compiler_flag, and hard-errors if the C compiler is unknown.
 project(ZeroAnalysis LANGUAGES C CXX)
 
+# export compile_commands.json for clangd
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 #===----------------------------------------------------------------------===#
 # Locate MLIR
 #
