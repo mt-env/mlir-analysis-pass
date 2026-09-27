@@ -63,13 +63,20 @@ struct SignedState {
 
   /// Least upper bound.  Two disagreeing facts lose all information.
   static SignedState join(const SignedState& lhs, const SignedState& rhs) {
-    if (lhs.kind == Kind::Bottom)
-      return rhs;
-    if (rhs.kind == Kind::Bottom)
-      return lhs;
-    if (lhs.kind == rhs.kind)
-      return lhs;
-    return top();
+    // who up magicking they numbers
+    constexpr Kind join_table[8][8] = {
+      { Kind::Bottom, Kind::Minus, Kind::Zero, Kind::One, Kind::Plus, Kind::NonPositive, Kind::NonNegative, Kind::Top },
+      { Kind::Minus, Kind::Minus, Kind::NonPositive, Kind::Top, Kind::Top, Kind::NonPositive, Kind::Top, Kind::Top },
+      { Kind::Zero, Kind::NonPositive, Kind::Zero, Kind::NonNegative, Kind::NonNegative, Kind::NonPositive, Kind::NonNegative, Kind::Top },
+      { Kind::One, Kind::Top, Kind::NonNegative, Kind::One, Kind::Plus, Kind::Top, Kind::NonNegative, Kind::Top },
+      { Kind::Plus, Kind::Top, Kind::NonNegative, Kind::Plus, Kind::Plus, Kind::Top, Kind::NonNegative, Kind::Top },
+      { Kind::NonPositive, Kind::NonPositive, Kind::NonPositive, Kind::Top, Kind::Top, Kind::NonPositive, Kind::Top, Kind::Top },
+      { Kind::NonNegative, Kind::Top, Kind::NonNegative, Kind::NonNegative, Kind::NonNegative, Kind::Top, Kind::NonNegative, Kind::Top },
+      { Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top }
+    };
+    int lhs_index = static_cast<int>(lhs.kind);
+    int rhs_index = static_cast<int>(rhs.kind);
+    return join_table[lhs_index][rhs_index];
   }
 
   bool operator==(const SignedState& other) const { return kind == other.kind; }
