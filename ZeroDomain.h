@@ -26,7 +26,7 @@
 
 namespace zero {
 
-enum class Kind { Bottom = 0, Minus = 1, Zero = 2, One = 3, Plus = 4, NonPositive = 5, NonNegative = 6, Top = 7 };
+enum class Kind { Bottom = 0, Minus = 1, Zero = 2, One = 3, Plus = 4, ZeroNeg = 5, ZeroPos = 6, Top = 7 };
 
 inline const char* name(Kind kind) {
   switch (kind) {
@@ -40,9 +40,9 @@ inline const char* name(Kind kind) {
     return "one";
   case Kind::Plus:
     return "plus";
-  case Kind::NonPositive:
+  case Kind::ZeroNeg:
     return "non-positive";
-  case Kind::NonNegative:
+  case Kind::ZeroPos:
     return "non-negative";
   case Kind::Top:
     return "top";
@@ -65,13 +65,13 @@ struct SignedState {
   static SignedState join(const SignedState& lhs, const SignedState& rhs) {
     // who up magicking they numbers
     constexpr Kind join_table[8][8] = {
-      { Kind::Bottom, Kind::Minus, Kind::Zero, Kind::One, Kind::Plus, Kind::NonPositive, Kind::NonNegative, Kind::Top },
-      { Kind::Minus, Kind::Minus, Kind::NonPositive, Kind::Top, Kind::Top, Kind::NonPositive, Kind::Top, Kind::Top },
-      { Kind::Zero, Kind::NonPositive, Kind::Zero, Kind::NonNegative, Kind::NonNegative, Kind::NonPositive, Kind::NonNegative, Kind::Top },
-      { Kind::One, Kind::Top, Kind::NonNegative, Kind::One, Kind::Plus, Kind::Top, Kind::NonNegative, Kind::Top },
-      { Kind::Plus, Kind::Top, Kind::NonNegative, Kind::Plus, Kind::Plus, Kind::Top, Kind::NonNegative, Kind::Top },
-      { Kind::NonPositive, Kind::NonPositive, Kind::NonPositive, Kind::Top, Kind::Top, Kind::NonPositive, Kind::Top, Kind::Top },
-      { Kind::NonNegative, Kind::Top, Kind::NonNegative, Kind::NonNegative, Kind::NonNegative, Kind::Top, Kind::NonNegative, Kind::Top },
+      { Kind::Bottom, Kind::Minus, Kind::Zero, Kind::One, Kind::Plus, Kind::ZeroNeg, Kind::ZeroPos, Kind::Top },
+      { Kind::Minus, Kind::Minus, Kind::ZeroNeg, Kind::Top, Kind::Top, Kind::ZeroNeg, Kind::Top, Kind::Top },
+      { Kind::Zero, Kind::ZeroNeg, Kind::Zero, Kind::ZeroPos, Kind::ZeroPos, Kind::ZeroNeg, Kind::ZeroPos, Kind::Top },
+      { Kind::One, Kind::Top, Kind::ZeroPos, Kind::One, Kind::Plus, Kind::Top, Kind::ZeroPos, Kind::Top },
+      { Kind::Plus, Kind::Top, Kind::ZeroPos, Kind::Plus, Kind::Plus, Kind::Top, Kind::ZeroPos, Kind::Top },
+      { Kind::ZeroNeg, Kind::ZeroNeg, Kind::ZeroNeg, Kind::Top, Kind::Top, Kind::ZeroNeg, Kind::Top, Kind::Top },
+      { Kind::ZeroPos, Kind::Top, Kind::ZeroPos, Kind::ZeroPos, Kind::ZeroPos, Kind::Top, Kind::ZeroPos, Kind::Top },
       { Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top }
     };
     int lhs_index = static_cast<int>(lhs.kind);
