@@ -26,19 +26,19 @@
 
 namespace zero {
 
-enum class Kind { Bottom = 0, Minus = 1, Zero = 2, One = 3, Plus = 4, ZeroNeg = 5, ZeroPos = 6, Top = 7 };
+enum class Kind { Bottom = 0, Neg = 1, Zero = 2, One = 3, Pos = 4, ZeroNeg = 5, ZeroPos = 6, Top = 7 };
 
 inline const char* name(Kind kind) {
   switch (kind) {
   case Kind::Bottom:
     return "bottom";
-  case Kind::Minus:
+  case Kind::Neg:
     return "minus";
   case Kind::Zero:
     return "zero";
   case Kind::One:
     return "one";
-  case Kind::Plus:
+  case Kind::Pos:
     return "plus";
   case Kind::ZeroNeg:
     return "non-positive";
@@ -65,11 +65,11 @@ struct SignedState {
   static SignedState join(const SignedState& lhs, const SignedState& rhs) {
     // who up magicking they numbers
     constexpr Kind join_table[8][8] = {
-      { Kind::Bottom, Kind::Minus, Kind::Zero, Kind::One, Kind::Plus, Kind::ZeroNeg, Kind::ZeroPos, Kind::Top },
-      { Kind::Minus, Kind::Minus, Kind::ZeroNeg, Kind::Top, Kind::Top, Kind::ZeroNeg, Kind::Top, Kind::Top },
+      { Kind::Bottom, Kind::Neg, Kind::Zero, Kind::One, Kind::Pos, Kind::ZeroNeg, Kind::ZeroPos, Kind::Top },
+      { Kind::Neg, Kind::Neg, Kind::ZeroNeg, Kind::Top, Kind::Top, Kind::ZeroNeg, Kind::Top, Kind::Top },
       { Kind::Zero, Kind::ZeroNeg, Kind::Zero, Kind::ZeroPos, Kind::ZeroPos, Kind::ZeroNeg, Kind::ZeroPos, Kind::Top },
-      { Kind::One, Kind::Top, Kind::ZeroPos, Kind::One, Kind::Plus, Kind::Top, Kind::ZeroPos, Kind::Top },
-      { Kind::Plus, Kind::Top, Kind::ZeroPos, Kind::Plus, Kind::Plus, Kind::Top, Kind::ZeroPos, Kind::Top },
+      { Kind::One, Kind::Top, Kind::ZeroPos, Kind::One, Kind::Pos, Kind::Top, Kind::ZeroPos, Kind::Top },
+      { Kind::Pos, Kind::Top, Kind::ZeroPos, Kind::Pos, Kind::Pos, Kind::Top, Kind::ZeroPos, Kind::Top },
       { Kind::ZeroNeg, Kind::ZeroNeg, Kind::ZeroNeg, Kind::Top, Kind::Top, Kind::ZeroNeg, Kind::Top, Kind::Top },
       { Kind::ZeroPos, Kind::Top, Kind::ZeroPos, Kind::ZeroPos, Kind::ZeroPos, Kind::Top, Kind::ZeroPos, Kind::Top },
       { Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top }
