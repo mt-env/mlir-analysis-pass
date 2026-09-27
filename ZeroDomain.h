@@ -26,16 +26,24 @@
 
 namespace zero {
 
-enum class Kind { Bottom, Zero, NonZero, Top };
+enum class Kind { Bottom = 0, Minus = 1, Zero = 2, One = 3, Plus = 4, NonPositive = 5, NonNegative = 6, Top = 7 };
 
 inline const char* name(Kind kind) {
   switch (kind) {
   case Kind::Bottom:
     return "bottom";
+  case Kind::Minus:
+    return "minus";
   case Kind::Zero:
     return "zero";
-  case Kind::NonZero:
-    return "nonzero";
+  case Kind::One:
+    return "one";
+  case Kind::Plus:
+    return "plus";
+  case Kind::NonPositive:
+    return "non-positive";
+  case Kind::NonNegative:
+    return "non-negative";
   case Kind::Top:
     return "top";
   }
