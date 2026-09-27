@@ -28,7 +28,7 @@ namespace zero {
 
 enum class Kind { Bottom, Zero, NonZero, Top };
 
-inline const char *name(Kind kind) {
+inline const char* name(Kind kind) {
   switch (kind) {
   case Kind::Bottom:
     return "bottom";
@@ -42,19 +42,19 @@ inline const char *name(Kind kind) {
   return "top";
 }
 
-struct ZeroState {
+struct SignedState {
   Kind kind = Kind::Bottom;
 
-  ZeroState() = default;
-  /* implicit */ ZeroState(Kind kind) : kind(kind) {}
+  SignedState() = default;
+  /* implicit */ SignedState(Kind kind) : kind(kind) {}
 
-  static ZeroState bottom() { return Kind::Bottom; }
-  static ZeroState top() { return Kind::Top; }
+  static SignedState bottom() { return Kind::Bottom; }
+  static SignedState top() { return Kind::Top; }
 
   bool isBottom() const { return kind == Kind::Bottom; }
 
   /// Least upper bound.  Two disagreeing facts lose all information.
-  static ZeroState join(const ZeroState &lhs, const ZeroState &rhs) {
+  static SignedState join(const SignedState& lhs, const SignedState& rhs) {
     if (lhs.kind == Kind::Bottom)
       return rhs;
     if (rhs.kind == Kind::Bottom)
@@ -64,14 +64,14 @@ struct ZeroState {
     return top();
   }
 
-  bool operator==(const ZeroState &other) const { return kind == other.kind; }
-  bool operator!=(const ZeroState &other) const { return kind != other.kind; }
+  bool operator==(const SignedState& other) const { return kind == other.kind; }
+  bool operator!=(const SignedState& other) const { return kind != other.kind; }
 
-  void print(llvm::raw_ostream &os) const { os << name(kind); }
+  void print(llvm::raw_ostream& os) const { os << name(kind); }
 };
 
-inline llvm::raw_ostream &operator<<(llvm::raw_ostream &os,
-                                     const ZeroState &state) {
+inline llvm::raw_ostream& operator<<(llvm::raw_ostream& os,
+                                     const SignedState& state) {
   state.print(os);
   return os;
 }

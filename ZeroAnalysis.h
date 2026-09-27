@@ -8,23 +8,23 @@
 
 namespace zero {
 
-using ZeroLattice = mlir::dataflow::Lattice<ZeroState>;
+using SignedLattice = mlir::dataflow::Lattice<SignedState>;
 
-class ZeroAnalysis
-    : public mlir::dataflow::SparseForwardDataFlowAnalysis<ZeroLattice> {
+class SignedAnalysis
+    : public mlir::dataflow::SparseForwardDataFlowAnalysis<SignedLattice> {
 public:
   using SparseForwardDataFlowAnalysis::SparseForwardDataFlowAnalysis;
 
   /// Transfer function: given the states of `op`'s operands, set the states of
   /// its results.  Must be monotone in the operand states.
   mlir::LogicalResult
-  visitOperation(mlir::Operation *op,
-                 llvm::ArrayRef<const ZeroLattice *> operands,
-                 llvm::ArrayRef<ZeroLattice *> results) override;
+  visitOperation(mlir::Operation* op,
+                 llvm::ArrayRef<const SignedLattice*> operands,
+                 llvm::ArrayRef<SignedLattice*> results) override;
 
   /// The state of anything entering the analysis from outside: function
   /// arguments, and results the transfer function declines to reason about.
-  void setToEntryState(ZeroLattice *lattice) override;
+  void setToEntryState(SignedLattice* lattice) override;
 };
 
 } // namespace zero

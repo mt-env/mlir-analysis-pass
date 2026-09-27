@@ -22,9 +22,9 @@ using namespace mlir;
 
 namespace {
 
-struct ZeroAnalysisPass
-    : PassWrapper<ZeroAnalysisPass, OperationPass<ModuleOp>> {
-  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(ZeroAnalysisPass)
+struct SignedAnalysisPass
+    : PassWrapper<SignedAnalysisPass, OperationPass<ModuleOp>> {
+  MLIR_DEFINE_EXPLICIT_INTERNAL_INLINE_TYPE_ID(SignedAnalysisPass)
 
   StringRef getArgument() const final { return "zero-analysis"; }
 
@@ -42,7 +42,7 @@ struct ZeroAnalysisPass
     // conditions for it.  Both are prerequisites, not extras.
     solver.load<dataflow::DeadCodeAnalysis>();
     solver.load<dataflow::SparseConstantPropagation>();
-    solver.load<zero::ZeroAnalysis>();
+    solver.load<zero::SignedAnalysis>();
 
     if (failed(solver.initializeAndRun(getOperation()))) {
       getOperation().emitError("zero analysis failed to reach a fixed point");
@@ -51,7 +51,7 @@ struct ZeroAnalysisPass
 
     // Query states only now that the solver has converged.
     auto describe = [&](Value value, AsmState &asmState) -> std::string {
-      const auto *lattice = solver.lookupState<zero::ZeroLattice>(value);
+      const auto *lattice = solver.lookupState<zero::SignedLattice>(value);
       if (!lattice)
         return {};
       zero::Kind kind = lattice->getValue().kind;
@@ -80,5 +80,5 @@ extern "C" LLVM_ATTRIBUTE_WEAK PassPluginLibraryInfo mlirGetPassPluginInfo() {
   // LLVM_VERSION_STRING is baked in at compile time and checked by mlir-opt at
   // load time, which is what turns an ABI mismatch into a clear diagnostic.
   return {MLIR_PLUGIN_API_VERSION, "ZeroAnalysis", LLVM_VERSION_STRING,
-          []() { PassRegistration<ZeroAnalysisPass>(); }};
+          []() { PassRegistration<SignedAnalysisPass>(); }};
 }
