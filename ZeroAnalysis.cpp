@@ -14,6 +14,7 @@
 
 #include "ZeroAnalysis.h"
 
+#include "ZeroDomain.h"
 #include "mlir/Dialect/LLVMIR/LLVMDialect.h"
 #include "mlir/IR/Matchers.h"
 
@@ -27,8 +28,8 @@ void SignedAnalysis::setToEntryState(SignedLattice* lattice) {
 
 LogicalResult
 SignedAnalysis::visitOperation(Operation* op,
-                             ArrayRef<const SignedLattice* > operands,
-                             ArrayRef<SignedLattice* > results) {
+                             ArrayRef<const SignedLattice*> operands,
+                             ArrayRef<SignedLattice*> results) {
   // Raising a result to top says "this operation could produce anything",
   // which is always a sound answer and is what every unhandled case does.
   auto unknown = [&] {
@@ -42,33 +43,68 @@ SignedAnalysis::visitOperation(Operation* op,
     return unknown();
   SignedLattice* result = results[0];
 
-  // Rule 1: a constant is zero or nonzero according to what it says.
-  // This is the only rule that does not consult its operands, and without some
-  // rule of this kind the analysis would have no facts to propagate at all.
+  // assign signed lattice abstract values to constants
   IntegerAttr value;
   if (matchPattern(op, m_Constant(&value))) {
-    SignedState state = value.getValue().isSigned() ? Kind::Signed : Kind::NonSigned;
+    // SignedState state = value.getValue().isZero() ? Kind::Zero : Kind::ZeroNeg;
+    SignedState state;
+    if (value.getValue().isZero()) {
+      state = SignedState(Kind::Zero);
+    } else if (value.getValue().isOne()) {
+      state = SignedState(Kind::One);
+    } else if (value.getValue().isNegative()) {
+      state = SignedState(Kind::Neg);
+    } else {
+      state = SignedState(Kind::Pos);
+    }
     propagateIfChanged(result, result->join(state));
     return success();
   }
 
-  // Rule 2: `x & y` is zero if either operand is zero, since a zero operand
-  // clears every bit.  Note what this rule does *not* say: two nonzero
-  // operands tell us nothing, because 1 & 2 is 0.
+  // assign signed lattice abstract values to binary operators
+  SignedState lhs = operands[0]->getValue();
+  SignedState rhs = operands[1]->getValue();
+  int lhs_index = static_cast<int>(lhs.kind);
+  int rhs_index = static_cast<int>(rhs.kind);
+
+  // assign values to `x + y`
+  if (isa<LLVM::AddOp>(op)) {
+    constexpr Kind addition_table[8][8] = {}; // TODO
+    SignedState result_state = addition_table[lhs_index][rhs_index];
+    propagateIfChanged(result, result->join(SignedState(Kind::Zero)));
+    return success();
+  }
+
+  // assign values to `x - y`
+  if (isa<LLVM::SubOp>(op)) {
+    constexpr Kind subtraction_table[8][8] = {}; // TODO
+    SignedState result_state = subtraction_table[lhs_index][rhs_index];
+    propagateIfChanged(result, result->join(SignedState(Kind::Zero)));
+    return success();
+  }
+
+  // assign values to `x * y`
+  if (isa<LLVM::MulOp>(op)) {
+    constexpr Kind multiplication_table[8][8] = {}; // TODO
+    SignedState result_state = multiplication_table[lhs_index][rhs_index];
+    propagateIfChanged(result, result->join(SignedState(Kind::Zero)));
+    return success();
+  }
+
+  // assign values to `x / y`
+  if (isa<LLVM::SDivOp>(op)) {
+    constexpr Kind division_table[8][8] = {}; // TODO
+    SignedState result_state = division_table[lhs_index][rhs_index];
+    propagateIfChanged(result, result->join(SignedState(Kind::Zero)));
+    return success();
+  }
+
+  // assign values to `x & y`
   if (isa<LLVM::AndOp>(op)) {
-    SignedState lhs = operands[0]->getValue();
-    SignedState rhs = operands[1]->getValue();
-
-    // Bottom means the solver has not yet proved anything reaches this
-    // operand.  Leaving the result alone keeps the analysis optimistic; the
-    // solver will call back here once the operand moves up the lattice.
-    if (lhs.isBottom() || rhs.isBottom())
-      return success();
-
-    if (lhs.kind == Kind::Signed || rhs.kind == Kind::Signed) {
-      propagateIfChanged(result, result->join(SignedState(Kind::Signed)));
-      return success();
-    }
+    constexpr Kind and_table[8][8] = {}; // TODO
+    SignedState result_state = and_table[lhs_index][rhs_index];
+    propagateIfChanged(result, result->join(SignedState(Kind::Zero)));
+    return success();
   }
 
   return unknown();
