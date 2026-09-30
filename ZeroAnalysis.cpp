@@ -102,7 +102,23 @@ SignedAnalysis::visitOperation(Operation *op,
 
   // assign values to `x * y`
   if (isa<LLVM::MulOp>(op)) {
-    constexpr Kind multiplication_table[8][8] = {}; // TODO
+    constexpr Kind multiplication_table[8][8] = {
+        {Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot,
+         Kind::Bot, Kind::Bot},
+        {Kind::Bot, Kind::Pos, Kind::Zero, Kind::Neg, Kind::Neg, Kind::ZeroPos,
+         Kind::ZeroNeg, Kind::Top},
+        {Kind::Bot, Kind::Zero, Kind::Zero, Kind::Zero, Kind::Zero, Kind::Zero,
+         Kind::Zero, Kind::Top},
+        {Kind::Bot, Kind::Neg, Kind::Zero, Kind::One, Kind::Pos, Kind::ZeroNeg,
+         Kind::ZeroPos, Kind::Top},
+        {Kind::Bot, Kind::Neg, Kind::Zero, Kind::Pos, Kind::Pos, Kind::ZeroNeg,
+         Kind::ZeroPos, Kind::Top},
+        {Kind::Bot, Kind::ZeroPos, Kind::Zero, Kind::ZeroNeg, Kind::ZeroNeg,
+         Kind::ZeroPos, Kind::ZeroNeg, Kind::Top},
+        {Kind::Bot, Kind::ZeroNeg, Kind::Zero, Kind::ZeroPos, Kind::ZeroPos,
+         Kind::ZeroNeg, Kind::ZeroPos, Kind::Top},
+        {Kind::Bot, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top,
+         Kind::Top, Kind::Top}};
     SignedState result_state = multiplication_table[lhs_index][rhs_index];
     propagateIfChanged(result, result->join(SignedState(Kind::Zero)));
     return success();
