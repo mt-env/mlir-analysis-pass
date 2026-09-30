@@ -56,7 +56,7 @@ struct SignedAnalysisPass
         return {};
       zero::Kind kind = lattice->getValue().kind;
       // Top and bottom say nothing; printing them would bury the real facts.
-      if (kind == zero::Kind::Top || kind == zero::Kind::Bottom)
+      if (kind == zero::Kind::Top || kind == zero::Kind::Bot)
         return {};
       std::string description;
       llvm::raw_string_ostream os(description);

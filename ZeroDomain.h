@@ -1,15 +1,16 @@
 //===- ZeroDomain.h - The abstract domain ---------------------------------===//
 //
-// A four-point lattice recording whether an integer value is known to be zero.
+// lattice to represent whether a value is
+// - negative
+// - zero
+// - exactly 1
+// - positive
+// - zero or negative
+// - zero or positive
 //
-//        Top          nothing is known
-//       /   \
-//    Zero  NonZero
-//       \   /
-//       Bottom       unreachable, or not yet analyzed
+// see p. 56 on static program analysis for the lattice hasse diagram
 //
-// This is the file to replace first when building a different analysis.  MLIR's
-// dataflow framework asks only three things of a lattice value:
+// MLIR's dataflow framework asks only three things of a lattice value:
 //
 //   * a default constructor, which must produce the bottom element, because the
 //     solver starts every value optimistically and lowers it as facts arrive;
@@ -26,11 +27,20 @@
 
 namespace zero {
 
-enum class Kind { Bottom = 0, Neg = 1, Zero = 2, One = 3, Pos = 4, ZeroNeg = 5, ZeroPos = 6, Top = 7 };
+enum class Kind {
+  Bot = 0,
+  Neg = 1,
+  Zero = 2,
+  One = 3,
+  Pos = 4,
+  ZeroNeg = 5,
+  ZeroPos = 6,
+  Top = 7
+};
 
 inline const char* name(Kind kind) {
   switch (kind) {
-  case Kind::Bottom:
+  case Kind::Bot:
     return "bottom";
   case Kind::Neg:
     return "minus";
@@ -51,29 +61,36 @@ inline const char* name(Kind kind) {
 }
 
 struct SignedState {
-  Kind kind = Kind::Bottom;
+  Kind kind = Kind::Bot;
 
   SignedState() = default;
   /* implicit */ SignedState(Kind kind) : kind(kind) {}
 
-  static SignedState bottom() { return Kind::Bottom; }
+  static SignedState bottom() { return Kind::Bot; }
   static SignedState top() { return Kind::Top; }
 
-  bool isBottom() const { return kind == Kind::Bottom; }
+  bool isBottom() const { return kind == Kind::Bot; }
 
   /// Least upper bound.  Two disagreeing facts lose all information.
   static SignedState join(const SignedState& lhs, const SignedState& rhs) {
     // who up magicking they numbers
     constexpr Kind join_table[8][8] = {
-      { Kind::Bottom, Kind::Neg, Kind::Zero, Kind::One, Kind::Pos, Kind::ZeroNeg, Kind::ZeroPos, Kind::Top },
-      { Kind::Neg, Kind::Neg, Kind::ZeroNeg, Kind::Top, Kind::Top, Kind::ZeroNeg, Kind::Top, Kind::Top },
-      { Kind::Zero, Kind::ZeroNeg, Kind::Zero, Kind::ZeroPos, Kind::ZeroPos, Kind::ZeroNeg, Kind::ZeroPos, Kind::Top },
-      { Kind::One, Kind::Top, Kind::ZeroPos, Kind::One, Kind::Pos, Kind::Top, Kind::ZeroPos, Kind::Top },
-      { Kind::Pos, Kind::Top, Kind::ZeroPos, Kind::Pos, Kind::Pos, Kind::Top, Kind::ZeroPos, Kind::Top },
-      { Kind::ZeroNeg, Kind::ZeroNeg, Kind::ZeroNeg, Kind::Top, Kind::Top, Kind::ZeroNeg, Kind::Top, Kind::Top },
-      { Kind::ZeroPos, Kind::Top, Kind::ZeroPos, Kind::ZeroPos, Kind::ZeroPos, Kind::Top, Kind::ZeroPos, Kind::Top },
-      { Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top }
-    };
+        {Kind::Bot, Kind::Neg, Kind::Zero, Kind::One, Kind::Pos, Kind::ZeroNeg,
+         Kind::ZeroPos, Kind::Top},
+        {Kind::Neg, Kind::Neg, Kind::ZeroNeg, Kind::Top, Kind::Top,
+         Kind::ZeroNeg, Kind::Top, Kind::Top},
+        {Kind::Zero, Kind::ZeroNeg, Kind::Zero, Kind::ZeroPos, Kind::ZeroPos,
+         Kind::ZeroNeg, Kind::ZeroPos, Kind::Top},
+        {Kind::One, Kind::Top, Kind::ZeroPos, Kind::One, Kind::Pos, Kind::Top,
+         Kind::ZeroPos, Kind::Top},
+        {Kind::Pos, Kind::Top, Kind::ZeroPos, Kind::Pos, Kind::Pos, Kind::Top,
+         Kind::ZeroPos, Kind::Top},
+        {Kind::ZeroNeg, Kind::ZeroNeg, Kind::ZeroNeg, Kind::Top, Kind::Top,
+         Kind::ZeroNeg, Kind::Top, Kind::Top},
+        {Kind::ZeroPos, Kind::Top, Kind::ZeroPos, Kind::ZeroPos, Kind::ZeroPos,
+         Kind::Top, Kind::ZeroPos, Kind::Top},
+        {Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top,
+         Kind::Top, Kind::Top}};
     int lhs_index = static_cast<int>(lhs.kind);
     int rhs_index = static_cast<int>(rhs.kind);
     return join_table[lhs_index][rhs_index];
