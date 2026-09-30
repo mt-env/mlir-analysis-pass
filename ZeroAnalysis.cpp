@@ -134,7 +134,23 @@ SignedAnalysis::visitOperation(Operation *op,
 
   // assign values to `x & y`
   if (isa<LLVM::AndOp>(op)) {
-    constexpr Kind and_table[8][8] = {}; // TODO
+    constexpr Kind and_table[8][8] = {
+        {Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot,
+         Kind::Bot, Kind::Bot},
+        {Kind::Bot, Kind::Neg, Kind::Zero, Kind::ZeroPos, Kind::ZeroPos,
+         Kind::ZeroNeg, Kind::ZeroPos, Kind::Top},
+        {Kind::Bot, Kind::Zero, Kind::Zero, Kind::Zero, Kind::Zero, Kind::Zero,
+         Kind::Zero, Kind::Top},
+        {Kind::Bot, Kind::ZeroPos, Kind::Zero, Kind::One, Kind::ZeroPos,
+         Kind::ZeroPos, Kind::ZeroPos, Kind::Top},
+        {Kind::Bot, Kind::ZeroPos, Kind::Zero, Kind::ZeroPos, Kind::ZeroPos,
+         Kind::ZeroPos, Kind::ZeroPos, Kind::Top},
+        {Kind::Bot, Kind::ZeroNeg, Kind::Zero, Kind::ZeroPos, Kind::ZeroPos,
+         Kind::ZeroNeg, Kind::ZeroPos, Kind::Top},
+        {Kind::Bot, Kind::ZeroPos, Kind::Zero, Kind::ZeroPos, Kind::ZeroPos,
+         Kind::ZeroPos, Kind::ZeroPos, Kind::Top},
+        {Kind::Bot, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top,
+         Kind::Top, Kind::Top}};
     SignedState result_state = and_table[lhs_index][rhs_index];
     propagateIfChanged(result, result->join(SignedState(Kind::Zero)));
     return success();
