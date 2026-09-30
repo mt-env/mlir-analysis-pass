@@ -69,7 +69,23 @@ SignedAnalysis::visitOperation(Operation* op,
 
   // assign values to `x + y`
   if (isa<LLVM::AddOp>(op)) {
-    constexpr Kind addition_table[8][8] = {}; // TODO
+    constexpr Kind addition_table[8][8] = {
+        {Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot,
+         Kind::Bot, Kind::Bot},
+        {Kind::Bot, Kind::Neg, Kind::Neg, Kind::Top, Kind::Top, Kind::Neg,
+         Kind::Top, Kind::Top},
+        {Kind::Bot, Kind::Neg, Kind::Zero, Kind::One, Kind::Pos, Kind::ZeroNeg,
+         Kind::ZeroPos, Kind::Top},
+        {Kind::Bot, Kind::Top, Kind::One, Kind::Pos, Kind::Pos, Kind::Top,
+         Kind::Pos, Kind::Top},
+        {Kind::Bot, Kind::Top, Kind::Pos, Kind::Pos, Kind::Pos, Kind::Top,
+         Kind::Pos, Kind::Top},
+        {Kind::Bot, Kind::Neg, Kind::ZeroNeg, Kind::Top, Kind::Top,
+         Kind::ZeroNeg, Kind::Top, Kind::Top},
+        {Kind::Bot, Kind::Top, Kind::ZeroPos, Kind::Pos, Kind::Pos, Kind::Top,
+         Kind::ZeroPos, Kind::Top},
+        {Kind::Bot, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top,
+         Kind::Top, Kind::Top}};
     SignedState result_state = addition_table[lhs_index][rhs_index];
     propagateIfChanged(result, result->join(SignedState(Kind::Zero)));
     return success();
