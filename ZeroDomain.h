@@ -38,7 +38,7 @@ enum class Kind {
   Top = 7
 };
 
-inline const char* name(Kind kind) {
+inline const char *name(Kind kind) {
   switch (kind) {
   case Kind::Bot:
     return "bottom";
@@ -72,7 +72,7 @@ struct SignedState {
   bool isBottom() const { return kind == Kind::Bot; }
 
   /// Least upper bound.  Two disagreeing facts lose all information.
-  static SignedState join(const SignedState& lhs, const SignedState& rhs) {
+  static SignedState join(const SignedState &lhs, const SignedState &rhs) {
     // who up magicking they numbers
     constexpr Kind join_table[8][8] = {
         {Kind::Bot, Kind::Neg, Kind::Zero, Kind::One, Kind::Pos, Kind::ZeroNeg,
@@ -96,14 +96,14 @@ struct SignedState {
     return join_table[lhs_index][rhs_index];
   }
 
-  bool operator==(const SignedState& other) const { return kind == other.kind; }
-  bool operator!=(const SignedState& other) const { return kind != other.kind; }
+  bool operator==(const SignedState &other) const { return kind == other.kind; }
+  bool operator!=(const SignedState &other) const { return kind != other.kind; }
 
-  void print(llvm::raw_ostream& os) const { os << name(kind); }
+  void print(llvm::raw_ostream &os) const { os << name(kind); }
 };
 
-inline llvm::raw_ostream& operator<<(llvm::raw_ostream& os,
-                                     const SignedState& state) {
+inline llvm::raw_ostream &operator<<(llvm::raw_ostream &os,
+                                     const SignedState &state) {
   state.print(os);
   return os;
 }

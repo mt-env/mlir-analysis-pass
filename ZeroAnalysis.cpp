@@ -22,14 +22,14 @@ using namespace mlir;
 
 namespace zero {
 
-void SignedAnalysis::setToEntryState(SignedLattice* lattice) {
+void SignedAnalysis::setToEntryState(SignedLattice *lattice) {
   propagateIfChanged(lattice, lattice->join(SignedState::top()));
 }
 
 LogicalResult
-SignedAnalysis::visitOperation(Operation* op,
-                             ArrayRef<const SignedLattice*> operands,
-                             ArrayRef<SignedLattice*> results) {
+SignedAnalysis::visitOperation(Operation *op,
+                               ArrayRef<const SignedLattice *> operands,
+                               ArrayRef<SignedLattice *> results) {
   // Raising a result to top says "this operation could produce anything",
   // which is always a sound answer and is what every unhandled case does.
   auto unknown = [&] {
@@ -41,12 +41,13 @@ SignedAnalysis::visitOperation(Operation* op,
   // floats, and vectors all land in `unknown`.
   if (op->getNumResults() != 1 || !op->getResult(0).getType().isIntOrIndex())
     return unknown();
-  SignedLattice* result = results[0];
+  SignedLattice *result = results[0];
 
   // assign signed lattice abstract values to constants
   IntegerAttr value;
   if (matchPattern(op, m_Constant(&value))) {
-    // SignedState state = value.getValue().isZero() ? Kind::Zero : Kind::ZeroNeg;
+    // SignedState state = value.getValue().isZero() ? Kind::Zero :
+    // Kind::ZeroNeg;
     SignedState state;
     if (value.getValue().isZero()) {
       state = SignedState(Kind::Zero);
