@@ -152,7 +152,23 @@ SignedAnalysis::visitOperation(Operation *op,
     SignedState rhs = operands[1]->getValue();
     int lhs_index = static_cast<int>(lhs.kind);
     int rhs_index = static_cast<int>(rhs.kind);
-    constexpr Kind division_table[8][8] = {}; // TODO
+    constexpr Kind division_table[8][8] = {
+        {Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot,
+         Kind::Bot, Kind::Bot},
+        {Kind::Bot, Kind::ZeroPos, Kind::Bot, Kind::Neg, Kind::ZeroNeg,
+         Kind::ZeroPos, Kind::ZeroNeg, Kind::Top},
+        {Kind::Bot, Kind::Zero, Kind::Bot, Kind::Zero, Kind::Zero, Kind::Zero,
+         Kind::Zero, Kind::Zero},
+        {Kind::Bot, Kind::ZeroNeg, Kind::Bot, Kind::One, Kind::ZeroPos,
+         Kind::ZeroNeg, Kind::ZeroPos, Kind::Top},
+        {Kind::Bot, Kind::ZeroNeg, Kind::Bot, Kind::Pos, Kind::ZeroPos,
+         Kind::ZeroNeg, Kind::ZeroPos, Kind::Top},
+        {Kind::Bot, Kind::ZeroPos, Kind::Bot, Kind::ZeroNeg, Kind::ZeroNeg,
+         Kind::ZeroPos, Kind::ZeroNeg, Kind::Top},
+        {Kind::Bot, Kind::ZeroNeg, Kind::Bot, Kind::ZeroPos, Kind::ZeroPos,
+         Kind::ZeroNeg, Kind::ZeroPos, Kind::Top},
+        {Kind::Bot, Kind::Top, Kind::Bot, Kind::Top, Kind::Top, Kind::Top,
+         Kind::Top, Kind::Top}};
     SignedState result_state = division_table[lhs_index][rhs_index];
     propagateIfChanged(result, result->join(result_state));
     return success();
