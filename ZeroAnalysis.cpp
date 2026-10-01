@@ -62,14 +62,12 @@ SignedAnalysis::visitOperation(Operation *op,
     return success();
   }
 
-  // assign signed lattice abstract values to binary operators
-  SignedState lhs = operands[0]->getValue();
-  SignedState rhs = operands[1]->getValue();
-  int lhs_index = static_cast<int>(lhs.kind);
-  int rhs_index = static_cast<int>(rhs.kind);
-
   // assign values to `x + y`
   if (isa<LLVM::AddOp>(op)) {
+    SignedState lhs = operands[0]->getValue();
+    SignedState rhs = operands[1]->getValue();
+    int lhs_index = static_cast<int>(lhs.kind);
+    int rhs_index = static_cast<int>(rhs.kind);
     constexpr Kind addition_table[8][8] = {
         {Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot,
          Kind::Bot, Kind::Bot},
@@ -88,12 +86,16 @@ SignedAnalysis::visitOperation(Operation *op,
         {Kind::Bot, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top,
          Kind::Top, Kind::Top}};
     SignedState result_state = addition_table[lhs_index][rhs_index];
-    propagateIfChanged(result, result->join(SignedState(Kind::Zero)));
+    propagateIfChanged(result, result->join(result_state));
     return success();
   }
 
   // assign values to `x - y`
   if (isa<LLVM::SubOp>(op)) {
+    SignedState lhs = operands[0]->getValue();
+    SignedState rhs = operands[1]->getValue();
+    int lhs_index = static_cast<int>(lhs.kind);
+    int rhs_index = static_cast<int>(rhs.kind);
     constexpr Kind subtraction_table[8][8] = {
         {Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot,
          Kind::Bot, Kind::Bot},
@@ -112,12 +114,16 @@ SignedAnalysis::visitOperation(Operation *op,
         {Kind::Bot, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top,
          Kind::Top, Kind::Top}};
     SignedState result_state = subtraction_table[lhs_index][rhs_index];
-    propagateIfChanged(result, result->join(SignedState(Kind::Zero)));
+    propagateIfChanged(result, result->join(result_state));
     return success();
   }
 
   // assign values to `x * y`
   if (isa<LLVM::MulOp>(op)) {
+    SignedState lhs = operands[0]->getValue();
+    SignedState rhs = operands[1]->getValue();
+    int lhs_index = static_cast<int>(lhs.kind);
+    int rhs_index = static_cast<int>(rhs.kind);
     constexpr Kind multiplication_table[8][8] = {
         {Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot,
          Kind::Bot, Kind::Bot},
@@ -136,20 +142,28 @@ SignedAnalysis::visitOperation(Operation *op,
         {Kind::Bot, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top,
          Kind::Top, Kind::Top}};
     SignedState result_state = multiplication_table[lhs_index][rhs_index];
-    propagateIfChanged(result, result->join(SignedState(Kind::Zero)));
+    propagateIfChanged(result, result->join(result_state));
     return success();
   }
 
   // assign values to `x / y`
   if (isa<LLVM::SDivOp>(op)) {
+    SignedState lhs = operands[0]->getValue();
+    SignedState rhs = operands[1]->getValue();
+    int lhs_index = static_cast<int>(lhs.kind);
+    int rhs_index = static_cast<int>(rhs.kind);
     constexpr Kind division_table[8][8] = {}; // TODO
     SignedState result_state = division_table[lhs_index][rhs_index];
-    propagateIfChanged(result, result->join(SignedState(Kind::Zero)));
+    propagateIfChanged(result, result->join(result_state));
     return success();
   }
 
   // assign values to `x & y`
   if (isa<LLVM::AndOp>(op)) {
+    SignedState lhs = operands[0]->getValue();
+    SignedState rhs = operands[1]->getValue();
+    int lhs_index = static_cast<int>(lhs.kind);
+    int rhs_index = static_cast<int>(rhs.kind);
     constexpr Kind and_table[8][8] = {
         {Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot,
          Kind::Bot, Kind::Bot},
@@ -168,7 +182,7 @@ SignedAnalysis::visitOperation(Operation *op,
         {Kind::Bot, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top,
          Kind::Top, Kind::Top}};
     SignedState result_state = and_table[lhs_index][rhs_index];
-    propagateIfChanged(result, result->join(SignedState(Kind::Zero)));
+    propagateIfChanged(result, result->join(result_state));
     return success();
   }
 
