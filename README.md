@@ -1,3 +1,50 @@
+# running my mlir dataflow
+
+i did the extended sign analysis from the book, and added a decent number of
+transfer functions. the test case is my shell assignment from cs6460, which is
+at `test/sh.c`, and its associated mlir file is `test/sh.mlir`. the analysis is
+at `test/sh.mlir.result`.
+
+the commands are basically the same as in the template:
+
+```sh
+cmake -S . -B build
+cmake --build build
+```
+
+to build the code, and
+
+```sh
+./run.sh test/sh.mlir
+```
+
+to run the analysis, which outputs the same file as `test/sh.mlir.result`
+(hopefully, i don't think there's any operating system specific stuff in here,
+but c++ is a godless language)
+
+```sh
+cat test/sh.mlir | wc -l
+```
+
+shows that there are 1761 lines of mlir total, and
+
+```sh
+./run.sh test/sh.mlir | grep is | wc -l
+```
+
+shows that there are 190 annotated lines in the output, and
+
+```sh
+./run.sh test/sh.mlir | grep is | grep --invert-match constant | wc -l
+```
+
+shows that 114 of them are interesting data flow results that aren't just on
+constants. im not sure if this is a good result or not? but only concluding any
+(non boring) facts about 6% of the values in the program seems kind of low.
+
+below is just the default template readme, which i kept around because it's
+kind of useful
+
 # MLIR out-of-tree dataflow analysis template
 
 A starting point for writing an MLIR dataflow analysis as a loadable `mlir-opt`
