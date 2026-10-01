@@ -186,15 +186,21 @@ SignedAnalysis::visitOperation(Operation *op,
         {Kind::Bot, Kind::Neg, Kind::Zero, Kind::ZeroPos, Kind::ZeroPos,
          Kind::ZeroNeg, Kind::ZeroPos, Kind::Top},
         {Kind::Bot, Kind::Zero, Kind::Zero, Kind::Zero, Kind::Zero, Kind::Zero,
-         Kind::Zero, Kind::Top},
+         Kind::Zero, Kind::Zero},
         {Kind::Bot, Kind::ZeroPos, Kind::Zero, Kind::One, Kind::ZeroPos,
-         Kind::ZeroPos, Kind::ZeroPos, Kind::Top},
+         Kind::ZeroPos, Kind::ZeroPos, Kind::ZeroPos},
         {Kind::Bot, Kind::ZeroPos, Kind::Zero, Kind::ZeroPos, Kind::ZeroPos,
-         Kind::ZeroPos, Kind::ZeroPos, Kind::Top},
+         Kind::ZeroPos, Kind::ZeroPos, Kind::ZeroPos},
         {Kind::Bot, Kind::ZeroNeg, Kind::Zero, Kind::ZeroPos, Kind::ZeroPos,
          Kind::ZeroNeg, Kind::ZeroPos, Kind::Top},
         {Kind::Bot, Kind::ZeroPos, Kind::Zero, Kind::ZeroPos, Kind::ZeroPos,
-         Kind::ZeroPos, Kind::ZeroPos, Kind::Top},
+         Kind::ZeroPos, Kind::ZeroPos, Kind::ZeroPos},
+        {Kind::Bot, Kind::Top, Kind::Zero, Kind::ZeroPos, Kind::ZeroPos,
+         Kind::Top, Kind::ZeroPos, Kind::Top}};
+    SignedState result_state = and_table[lhs_index][rhs_index];
+    propagateIfChanged(result, result->join(result_state));
+    return success();
+  }
         {Kind::Bot, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top,
          Kind::Top, Kind::Top}};
     SignedState result_state = and_table[lhs_index][rhs_index];
