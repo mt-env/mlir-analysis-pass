@@ -94,7 +94,23 @@ SignedAnalysis::visitOperation(Operation *op,
 
   // assign values to `x - y`
   if (isa<LLVM::SubOp>(op)) {
-    constexpr Kind subtraction_table[8][8] = {}; // TODO
+    constexpr Kind subtraction_table[8][8] = {
+        {Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot, Kind::Bot,
+         Kind::Bot, Kind::Bot},
+        {Kind::Bot, Kind::Top, Kind::Neg, Kind::Neg, Kind::Neg, Kind::Top,
+         Kind::Neg, Kind::Top},
+        {Kind::Bot, Kind::Pos, Kind::Zero, Kind::Neg, Kind::Neg, Kind::ZeroPos,
+         Kind::ZeroNeg, Kind::Top},
+        {Kind::Bot, Kind::Pos, Kind::One, Kind::Zero, Kind::ZeroNeg, Kind::Pos,
+         Kind::Top, Kind::Top},
+        {Kind::Bot, Kind::Pos, Kind::Pos, Kind::ZeroPos, Kind::Top, Kind::Pos,
+         Kind::Top, Kind::Top},
+        {Kind::Bot, Kind::Top, Kind::ZeroNeg, Kind::Neg, Kind::Neg, Kind::Top,
+         Kind::ZeroNeg, Kind::Top},
+        {Kind::Bot, Kind::Pos, Kind::ZeroPos, Kind::Top, Kind::Top,
+         Kind::ZeroPos, Kind::Top, Kind::Top},
+        {Kind::Bot, Kind::Top, Kind::Top, Kind::Top, Kind::Top, Kind::Top,
+         Kind::Top, Kind::Top}};
     SignedState result_state = subtraction_table[lhs_index][rhs_index];
     propagateIfChanged(result, result->join(SignedState(Kind::Zero)));
     return success();
